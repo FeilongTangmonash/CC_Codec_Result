@@ -185,6 +185,44 @@
     </div>
   </div>
 
+  <div class="card">
+    <h2>⑤ tc768（768 帧，满分辨率，ctx131k 真实窗口）— lvbench 290px / videomme 310px</h2>
+    <div class="meta">关键：模型训练过 ~350×350×768(~80k+ token)、rope_theta=8e6，真实窗口是 131072(config 里 40960 是保守声明值)。把 max_position_embeddings 改回 131072 后，290/310px×768(72-80k token)<b>原生有效、不降级</b>(实测 exceeded=0)。原始 codec 权重 + max_num_frames=768。<span class="run">running</span>=仍在跑。</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">分辨率 (block_size)</th>
+          <th>lvbench</th>
+          <th>videomme-long<br>(有字幕)</th>
+          <th>videomme-long<br>(无字幕)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px">bs2 <span>lv290/vmm310</span></td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+        </tr>
+        <tr>
+          <td class="px">bs4 <span>lv290/vmm310</span></td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+        </tr>
+        <tr>
+          <td class="px">bs8 <span>lv290/vmm310</span></td>
+          <td class="val">48.35</td>
+          <td class="run">regen+pending</td>
+          <td class="run">regen+pending</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      首格对比(lvbench bs8 768帧)：满分辨率 290px@ctx131k=<b>48.35</b> ≫ 降分辨率 204px=45.06(表④)——说明 768 帧下顶满真实窗口跑满分辨率明显更优。其余格陆续回填(videomme bs8 因数据重生成稍后补)。
+    </div>
+  </div>
+
   <footer>
     注：px = block_size × 14px(patch)。bs2=28px、bs4=56px、bs8=112px。<br>
     指标：lvbench = lvbench_score；videomme-long = videomme_perception_score(overall)。均为百分数。<br>
