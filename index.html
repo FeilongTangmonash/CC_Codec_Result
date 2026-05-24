@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codec px (block_size) 消融 — lvbench &amp; videomme-long</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#171e2e; --line:#2a3550; --txt:#e6ebf5; --mut:#93a0bd;
+    --accent:#5b9dff; --good:#3ecf8e; --bad:#ff6b6b; --warn:#ffcc66;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--mut);font-size:13px;margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:26px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+  h2{font-size:16px;margin:0 0 4px;color:var(--accent)}
+  .meta{color:var(--mut);font-size:12px;margin-bottom:14px}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{padding:10px 14px;text-align:center;border-bottom:1px solid var(--line)}
+  th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td.px{text-align:left;font-weight:600}
+  td.px span{color:var(--mut);font-weight:400;font-size:12px;margin-left:6px}
+  tbody tr:hover{background:rgba(91,157,255,.06)}
+  .val{font-variant-numeric:tabular-nums;font-weight:600}
+  .best{color:var(--good)}
+  .run{color:var(--warn);font-style:italic;font-weight:400;font-size:12px}
+  .legend{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.7}
+  .pill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11px;
+    border:1px solid var(--line);margin-right:6px}
+  .delta{font-size:11px;color:var(--mut);margin-left:6px}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  footer{color:var(--mut);font-size:11px;margin-top:10px}
+</style>
+</head>
+<body>
+  <h1>Codec px(block_size)消融实验</h1>
+  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 生成于 2026-05-24</div>
+
+  <div class="card">
+    <h2>① tc128（128 帧，max_pixels = 313k）— 完整</h2>
+    <div class="meta">px = block_size × 14px patch。每格为准确率(%)；<span class="best">绿色</span>=该列最高。</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">分辨率 (block_size)</th>
+          <th>lvbench</th>
+          <th>videomme-long<br>(有字幕)</th>
+          <th>videomme-long<br>(无字幕)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px">28&nbsp;px <span>bs2 · 2×2</span></td>
+          <td class="val best">49.06</td>
+          <td class="val">69.67</td>
+          <td class="val">57.33</td>
+        </tr>
+        <tr>
+          <td class="px">56&nbsp;px <span>bs4 · 4×4</span></td>
+          <td class="val">48.22</td>
+          <td class="val">70.33</td>
+          <td class="val">57.22</td>
+        </tr>
+        <tr>
+          <td class="px">112&nbsp;px <span>bs8 · 8×8</span></td>
+          <td class="val">47.19</td>
+          <td class="val best">70.56</td>
+          <td class="val best">57.89</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <span class="pill">趋势</span>
+      lvbench：px 越大单调<span class="down">下降</span>（49.06 → 48.22 → 47.19，共 −1.87）。
+      videomme-long：px 越大略<span class="up">升</span>（有字幕 +0.89、无字幕 +0.56，均在误差带内）。
+      字幕对 videomme-long 是主导因素（去字幕掉 ~12 分，远大于 px 影响）。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>② tc256（256 帧，max_pixels = 120k，原生）— 进行中</h2>
+    <div class="meta">256 帧在 mp313k 下会爆 40960 上下文上限，故降到 mp120k 使其原生装下（~33k token）。<span class="run">running</span> = 评测仍在跑。</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">分辨率 (block_size)</th>
+          <th>lvbench</th>
+          <th>videomme-long<br>(有字幕)</th>
+          <th>videomme-long<br>(无字幕)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px">28&nbsp;px <span>bs2</span></td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+        </tr>
+        <tr>
+          <td class="px">56&nbsp;px <span>bs4</span></td>
+          <td class="run">gen+eval pending</td>
+          <td class="run">pending</td>
+          <td class="run">pending</td>
+        </tr>
+        <tr>
+          <td class="px">112&nbsp;px <span>bs8</span></td>
+          <td class="val">48.93 <span class="delta up">vs tc128 +1.74</span></td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      初步：bs8 在 lvbench 上 256 帧(48.93) 高于 128 帧(47.19)，更多帧对长视频检索有帮助。其余格跑完后回填。
+    </div>
+  </div>
+
+  <footer>
+    注：px = block_size × 14px(patch)。bs2=28px、bs4=56px、bs8=112px。<br>
+    指标：lvbench = lvbench_score；videomme-long = videomme_perception_score（overall）。均为百分数。
+  </footer>
+</body>
+</html>
