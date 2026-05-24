@@ -37,7 +37,7 @@
 </head>
 <body>
   <h1>Codec px(block_size)消融实验</h1>
-  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24 12:50</div>
+  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24 13:15</div>
 
   <div class="card">
     <h2>① tc128（128 帧，max_pixels = 313k）— 完整</h2>
@@ -101,20 +101,21 @@
         </tr>
         <tr>
           <td class="px">56&nbsp;px <span>bs4</span></td>
-          <td class="run">running</td>
-          <td class="run">running</td>
-          <td class="run">running</td>
+          <td class="val best">49.19</td>
+          <td class="run">running (57%)</td>
+          <td class="run">pending</td>
         </tr>
         <tr>
           <td class="px">112&nbsp;px <span>bs8</span></td>
-          <td class="val best">48.93 <span class="delta up">vs tc128 +1.74</span></td>
-          <td class="run">running</td>
-          <td class="run">pending</td>
+          <td class="val">48.93 <span class="delta up">vs tc128 +1.74</span></td>
+          <td class="val best">70.33</td>
+          <td class="val best">57.33</td>
         </tr>
       </tbody>
     </table>
     <div class="legend">
-      初步：bs8 在 lvbench 256 帧(48.93) &gt; 128 帧(47.19)，更多帧对长视频检索有帮助；bs2 反而 47.64 &lt; 49.06(128帧)。其余跑完回填。
+      lvbench：bs4(49.19) &gt; bs8(48.93) &gt; bs2(47.64)，与 tc128 单调下降不同（256 帧下 56px 最优）。
+      videomme-long：bs8 最高（有字幕 70.33、无字幕 57.33）。bs8 在 lvbench 256 帧(48.93) &gt; 128 帧(47.19)。bs4 的 videomme 跑完回填。
     </div>
   </div>
 
