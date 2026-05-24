@@ -37,7 +37,7 @@
 </head>
 <body>
   <h1>Codec px(block_size)消融实验</h1>
-  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24 14:30</div>
+  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24 15:30 (tc768 max-context 已加入)</div>
 
   <div class="card">
     <h2>① tc128（128 帧，max_pixels = 313k）— 完整</h2>
@@ -142,6 +142,46 @@
     </table>
     <div class="legend">
       YaRN 满分辨率 bs4 lvbench=50.74，高于同 block 的 mp120k 降分辨率版与所有 tc128——满分辨率+更多帧对 lvbench 最有利。代表性跑 bs4 一行（bs2/bs8 的 YaRN 行因 45s/样本太慢未铺）。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>④ tc768（768 帧，最大化上下文，原生 40960）— lvbench 204px / videomme 200px</h2>
+    <div class="meta">768 帧在 290/310px 会爆窗口(72-80k token)；故把分辨率降到能原生装下 768 帧的最大值——lvbench 204×204(max_pixels 41,616)、videomme 200×200(40,000)，约 35-39k token，原生不溢出、不降级。原始权重 max_num_frames=768。</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">分辨率 (block_size)</th>
+          <th>lvbench</th>
+          <th>videomme-long<br>(有字幕)</th>
+          <th>videomme-long<br>(无字幕)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px">bs2 <span>lv204/vmm200</span></td>
+          <td class="val best">49.19</td>
+          <td class="val">68.44</td>
+          <td class="val">54.56</td>
+        </tr>
+        <tr>
+          <td class="px">bs4 <span>lv204/vmm200</span></td>
+          <td class="val">46.16</td>
+          <td class="val best">71.00</td>
+          <td class="val">54.56</td>
+        </tr>
+        <tr>
+          <td class="px">bs8 <span>lv204/vmm200</span></td>
+          <td class="val">45.06</td>
+          <td class="run">running</td>
+          <td class="val best">55.67</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      lvbench：768帧下 px 越大单调<span class="down">下降</span>且更陡(bs2 49.19 ≫ bs4 46.16 > bs8 45.06)——低分辨率(204px)下大 block 信息损失明显。
+      videomme-long：bs4 有字幕 71.00 最高；无字幕 bs8 55.67 最高。
+      注：此为"固定768帧+顶满原生窗口"配置；与 tc128(313k)/tc256(120k) 的分辨率不同，主要看帧数维度。
     </div>
   </div>
 
