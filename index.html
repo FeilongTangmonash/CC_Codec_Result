@@ -112,6 +112,21 @@
     <div class="legend">降分辨率(204px)下 lvbench 的 px 效应最强且单调下降(bs2 49.19 ≫ bs8 45.06)——低分辨率放大了大 block 的信息损失。与表②(290px满分辨率)对比，满分辨率明显更优。</div>
   </div>
 
+  <!-- ⑥ timelens temporal localization -->
+  <div class="card">
+    <h2>⑥ timelens 时序定位（tc=64，max_pixels = 150k）</h2>
+    <div class="meta">时序定位任务（给定 query 定位视频时间段）。数值 = <b>mIOU</b>（mean IOU，越高越好）。orig codec 权重，tc64（512 采样帧→~64 canvas），离线 codec 按 stem 匹配。<span class="run">running</span>=仍在跑。</div>
+    <table>
+      <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>activitynet</th><th>charades</th><th>qvhighlights</th></tr></thead>
+      <tbody>
+        <tr><td class="px">28&nbsp;px <span>bs2 · 2×2</span></td><td class="run">running</td><td class="val">45.95</td><td class="run">running</td></tr>
+        <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="run">running</td><td class="run">running</td><td class="run">running</td></tr>
+        <tr><td class="px">112&nbsp;px <span>bs8 · 8×8</span></td><td class="run">running</td><td class="run">running</td><td class="run">running</td></tr>
+      </tbody>
+    </table>
+    <div class="legend">charades bs2 明细：IOU@3=65.51 / IOU@5=52.19 / IOU@7=27.77 / mIOU=45.95。其余格陆续回填。</div>
+  </div>
+
   <footer>
     注：px = block_size × 14px(patch)。bs2=28px、bs4=56px、bs8=112px。<br>
     指标：lvbench = lvbench_score；videomme-long = videomme_perception_score(overall)。均为百分数。<br>
