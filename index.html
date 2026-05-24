@@ -127,6 +127,20 @@
     <div class="legend">趋势：block 越大 mIOU 越<span class="down">低</span>（如 charades 45.95→43.79→36.93、qvhighlights 61.77→58.54）——时序定位需要更多空间细节，小 block(28px) 最优。charades bs2 明细：IOU@3=65.51/IOU@5=52.19/IOU@7=27.77/mIOU=45.95。activitynet bs2、qvhighlights bs8 跑完回填。</div>
   </div>
 
+  <!-- ⑦ nocodec uniform sampling vs codec -->
+  <div class="card">
+    <h2>⑦ nocodec 均匀采样 768 帧（chat 模式）vs codec canvas — 对照</h2>
+    <div class="meta">朴素均匀采样 768 帧（运行时解码，<b>不用 codec canvas</b>），chat 模式，nocodec 权重(ctx131k, 131072 窗口)。lvbench 290px / videomme-long 310px(有字幕)。对比表②的 codec canvas 同配置。慢(~65s/样本,768帧满帧解码)。</div>
+    <table>
+      <thead><tr><th style="text-align:left">模式</th><th>lvbench</th><th>videomme-long(有字幕)</th></tr></thead>
+      <tbody>
+        <tr><td class="px">codec canvas 768帧 <span>表②最佳, 290/310px</span></td><td class="val">48.81</td><td class="val">70.11</td></tr>
+        <tr><td class="px">nocodec 均匀采样 768帧 <span>chat, 290/310px</span></td><td class="val best">53.71</td><td class="val best">70.89</td></tr>
+      </tbody>
+    </table>
+    <div class="legend">关键发现：<b>nocodec 均匀采样(满帧)在 lvbench 上明显优于 codec canvas(53.71 vs 48.81，+4.9 分)</b>，videomme-long 基本持平(70.89 vs 70.11)。说明 codec 的块打包布局在长视频检索(lvbench)上有信息损失，朴素均匀满帧更优；但代价是慢(~65s vs codec ~15-45s/样本)。</div>
+  </div>
+
   <footer>
     注：px = block_size × 14px(patch)。bs2=28px、bs4=56px、bs8=112px。<br>
     指标：lvbench = lvbench_score；videomme-long = videomme_perception_score(overall)。均为百分数。<br>
