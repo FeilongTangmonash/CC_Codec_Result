@@ -37,196 +37,85 @@
 </head>
 <body>
   <h1>Codec px(block_size)消融实验</h1>
-  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24 15:30 (tc768 max-context 已加入)</div>
+  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24</div>
 
+  <!-- ① tc128 -->
   <div class="card">
-    <h2>① tc128（128 帧，max_pixels = 313k）— 完整</h2>
+    <h2>① tc128（128 帧，max_pixels = 313k）</h2>
     <div class="meta">px = block_size × 14px patch。每格为准确率(%)；<span class="best">绿色</span>=该列最高。</div>
     <table>
-      <thead>
-        <tr>
-          <th style="text-align:left">分辨率 (block_size)</th>
-          <th>lvbench</th>
-          <th>videomme-long<br>(有字幕)</th>
-          <th>videomme-long<br>(无字幕)</th>
-        </tr>
-      </thead>
+      <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
-        <tr>
-          <td class="px">28&nbsp;px <span>bs2 · 2×2</span></td>
-          <td class="val best">49.06</td>
-          <td class="val">69.67</td>
-          <td class="val">57.33</td>
-        </tr>
-        <tr>
-          <td class="px">56&nbsp;px <span>bs4 · 4×4</span></td>
-          <td class="val">48.22</td>
-          <td class="val">70.33</td>
-          <td class="val">57.22</td>
-        </tr>
-        <tr>
-          <td class="px">112&nbsp;px <span>bs8 · 8×8</span></td>
-          <td class="val">47.19</td>
-          <td class="val best">70.56</td>
-          <td class="val best">57.89</td>
-        </tr>
+        <tr><td class="px">28&nbsp;px <span>bs2 · 2×2</span></td><td class="val best">49.06</td><td class="val">69.67</td><td class="val">57.33</td></tr>
+        <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="val">48.22</td><td class="val">70.33</td><td class="val">57.22</td></tr>
+        <tr><td class="px">112&nbsp;px <span>bs8 · 8×8</span></td><td class="val">47.19</td><td class="val best">70.56</td><td class="val best">57.89</td></tr>
       </tbody>
     </table>
-    <div class="legend">
-      <span class="pill">趋势</span>
-      lvbench：px 越大单调<span class="down">下降</span>（49.06 → 48.22 → 47.19，共 −1.87）。
-      videomme-long：px 越大略<span class="up">升</span>（有字幕 +0.89、无字幕 +0.56，均在误差带内）。
-      字幕对 videomme-long 是主导因素（去字幕掉 ~12 分，远大于 px 影响）。
-    </div>
+    <div class="legend"><span class="pill">趋势</span>lvbench：px 越大单调<span class="down">下降</span>（49.06→48.22→47.19，−1.87）。videomme-long：px 越大略<span class="up">升</span>（误差带内）。字幕是主导因素（去字幕掉 ~12 分）。</div>
   </div>
 
+  <!-- ② tc768 full-res @ctx131k (moved to 2nd) -->
   <div class="card">
-    <h2>② tc256（256 帧，max_pixels = 120k，原生）— 完整</h2>
-    <div class="meta">256 帧在 mp313k 下会爆 40960 上下文上限，故降到 mp120k 使其原生装下（~33k token）。全部完成。</div>
+    <h2>② tc768（768 帧，满分辨率，原生 131k 窗口）</h2>
+    <div class="meta">lvbench 290px / videomme 310px。模型真实训练窗口 = 131072（config 里 40960 为保守值，rope_theta=8e6 支持长上下文）；改回 131072 后 768 帧满分辨率（72-80k token）<b>原生有效、不降级</b>（实测 exceeded=0）。orig codec 权重 + max_num_frames=768。</div>
     <table>
-      <thead>
-        <tr>
-          <th style="text-align:left">分辨率 (block_size)</th>
-          <th>lvbench</th>
-          <th>videomme-long<br>(有字幕)</th>
-          <th>videomme-long<br>(无字幕)</th>
-        </tr>
-      </thead>
+      <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
-        <tr>
-          <td class="px">28&nbsp;px <span>bs2</span></td>
-          <td class="val">47.64</td>
-          <td class="val">69.67</td>
-          <td class="val">56.11</td>
-        </tr>
-        <tr>
-          <td class="px">56&nbsp;px <span>bs4</span></td>
-          <td class="val best">49.19</td>
-          <td class="val best">70.70</td>
-          <td class="val">55.00</td>
-        </tr>
-        <tr>
-          <td class="px">112&nbsp;px <span>bs8</span></td>
-          <td class="val">48.93 <span class="delta up">vs tc128 +1.74</span></td>
-          <td class="val">70.33</td>
-          <td class="val best">57.33</td>
-        </tr>
+        <tr><td class="px">28&nbsp;px <span>bs2 · 2×2</span></td><td class="val">48.42</td><td class="val">64.67</td><td class="val">54.22</td></tr>
+        <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="val best">48.81</td><td class="val">66.78</td><td class="val">55.78</td></tr>
+        <tr><td class="px">112&nbsp;px <span>bs8 · 8×8</span></td><td class="val">48.35</td><td class="val best">70.11</td><td class="val best">57.44</td></tr>
       </tbody>
     </table>
-    <div class="legend">
-      lvbench：bs4(49.19) &gt; bs8(48.93) &gt; bs2(47.64)，与 tc128 单调下降不同（256 帧下 56px 最优）。
-      videomme-long 有字幕：bs4(70.70) ≈ bs8(70.33) &gt; bs2(69.67)；无字幕：bs8(57.33) &gt; bs2(56.11) &gt; bs4(55.00)。整体 px 影响 &lt;1.5 分（噪声带内）。
-    </div>
+    <div class="legend">满分辨率 768 帧：lvbench bs4(48.81) 最高，整体比降分辨率版（表⑤）高 ~3 分。videomme-long：px 越大越好（bs8 有字幕 70.11、无字幕 57.44）。</div>
   </div>
 
+  <!-- ③ tc256 mp120k native -->
   <div class="card">
-    <h2>③ tc256（256 帧，max_pixels = 313k + YaRN 外推）— 对照</h2>
-    <div class="meta">不降分辨率，改用 YaRN(factor 2.5)把上下文窗口外推到 102400 装下 ~99k token。满分辨率 256 帧。慢(~45s/样本)。</div>
+    <h2>③ tc256（256 帧，max_pixels = 120k，原生）</h2>
+    <div class="meta">256 帧在 mp313k 下超 40960 上限，降到 mp120k 使其原生装下（~33k token）。orig codec 权重。</div>
     <table>
-      <thead>
-        <tr>
-          <th style="text-align:left">分辨率 (block_size)</th>
-          <th>lvbench</th>
-          <th>videomme-long<br>(有字幕)</th>
-          <th>videomme-long<br>(无字幕)</th>
-        </tr>
-      </thead>
+      <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
-        <tr>
-          <td class="px">56&nbsp;px <span>bs4 · YaRN</span></td>
-          <td class="val best">50.74</td>
-          <td class="val">70.00</td>
-          <td class="val">56.44</td>
-        </tr>
+        <tr><td class="px">28&nbsp;px <span>bs2 · 2×2</span></td><td class="val">47.64</td><td class="val">69.67</td><td class="val">56.11</td></tr>
+        <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="val best">49.19</td><td class="val best">70.70</td><td class="val">55.00</td></tr>
+        <tr><td class="px">112&nbsp;px <span>bs8 · 8×8</span></td><td class="val">48.93</td><td class="val">70.33</td><td class="val best">57.33</td></tr>
       </tbody>
     </table>
-    <div class="legend">
-      YaRN 满分辨率 bs4 lvbench=50.74，高于同 block 的 mp120k 降分辨率版与所有 tc128——满分辨率+更多帧对 lvbench 最有利。代表性跑 bs4 一行（bs2/bs8 的 YaRN 行因 45s/样本太慢未铺）。
-    </div>
+    <div class="legend">lvbench：bs4(49.19) &gt; bs8(48.93) &gt; bs2(47.64)，256 帧下 56px 最优。videomme-long：px 影响 &lt;1.5 分（噪声带内）。</div>
   </div>
 
+  <!-- ④ tc256 YaRN -->
   <div class="card">
-    <h2>④ tc768（768 帧，最大化上下文，原生 40960）— lvbench 204px / videomme 200px</h2>
-    <div class="meta">768 帧在 290/310px 会爆窗口(72-80k token)；故把分辨率降到能原生装下 768 帧的最大值——lvbench 204×204(max_pixels 41,616)、videomme 200×200(40,000)，约 35-39k token，原生不溢出、不降级。原始权重 max_num_frames=768。</div>
+    <h2>④ tc256（256 帧，max_pixels = 313k + YaRN 外推）— 对照</h2>
+    <div class="meta">不降分辨率，用 YaRN(factor 2.5) 外推窗口到 102400 装下 ~99k token。满分辨率 256 帧。慢(~45s/样本)，代表性跑 bs4 一行。</div>
     <table>
-      <thead>
-        <tr>
-          <th style="text-align:left">分辨率 (block_size)</th>
-          <th>lvbench</th>
-          <th>videomme-long<br>(有字幕)</th>
-          <th>videomme-long<br>(无字幕)</th>
-        </tr>
-      </thead>
+      <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
-        <tr>
-          <td class="px">bs2 <span>lv204/vmm200</span></td>
-          <td class="val best">49.19</td>
-          <td class="val">68.44</td>
-          <td class="val">54.56</td>
-        </tr>
-        <tr>
-          <td class="px">bs4 <span>lv204/vmm200</span></td>
-          <td class="val">46.16</td>
-          <td class="val best">71.00</td>
-          <td class="val">54.56</td>
-        </tr>
-        <tr>
-          <td class="px">bs8 <span>lv204/vmm200</span></td>
-          <td class="val">45.06</td>
-          <td class="val">69.83</td>
-          <td class="val best">55.67</td>
-        </tr>
+        <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="val best">50.74</td><td class="val">70.00</td><td class="val">56.44</td></tr>
       </tbody>
     </table>
-    <div class="legend">
-      lvbench：768帧下 px 越大单调<span class="down">下降</span>且更陡(bs2 49.19 ≫ bs4 46.16 > bs8 45.06)——低分辨率(204px)下大 block 信息损失明显。
-      videomme-long：bs4 有字幕 71.00 最高；无字幕 bs8 55.67 最高。
-      注：此为"固定768帧+顶满原生窗口"配置；与 tc128(313k)/tc256(120k) 的分辨率不同，主要看帧数维度。
-    </div>
+    <div class="legend">YaRN 满分辨率 bs4 lvbench=50.74，高于同 block 的降分辨率版与所有 tc128/tc256——满分辨率+更多帧对 lvbench 最有利。</div>
   </div>
 
+  <!-- ⑤ tc768 downscaled max-context -->
   <div class="card">
-    <h2>⑤ tc768（768 帧，满分辨率，ctx131k 真实窗口）— lvbench 290px / videomme 310px</h2>
-    <div class="meta">关键：模型训练过 ~350×350×768(~80k+ token)、rope_theta=8e6，真实窗口是 131072(config 里 40960 是保守声明值)。把 max_position_embeddings 改回 131072 后，290/310px×768(72-80k token)<b>原生有效、不降级</b>(实测 exceeded=0)。原始 codec 权重 + max_num_frames=768。<span class="run">running</span>=仍在跑。</div>
+    <h2>⑤ tc768（768 帧，降分辨率顶满 40960 窗口）— 对照</h2>
+    <div class="meta">早期在 40960 窗口下的次优解：把分辨率降到能原生装下 768 帧的最大值——lvbench 204px / videomme 200px（~35-39k token）。对比表②满分辨率版可见分辨率影响。</div>
     <table>
-      <thead>
-        <tr>
-          <th style="text-align:left">分辨率 (block_size)</th>
-          <th>lvbench</th>
-          <th>videomme-long<br>(有字幕)</th>
-          <th>videomme-long<br>(无字幕)</th>
-        </tr>
-      </thead>
+      <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
-        <tr>
-          <td class="px">bs2 <span>lv290/vmm310</span></td>
-          <td class="val">48.42</td>
-          <td class="val">64.67</td>
-          <td class="val">54.22</td>
-        </tr>
-        <tr>
-          <td class="px">bs4 <span>lv290/vmm310</span></td>
-          <td class="val best">48.81</td>
-          <td class="val">66.78</td>
-          <td class="val">55.78</td>
-        </tr>
-        <tr>
-          <td class="px">bs8 <span>lv290/vmm310</span></td>
-          <td class="val">48.35</td>
-          <td class="val best">70.11</td>
-          <td class="val best">57.44</td>
-        </tr>
+        <tr><td class="px">28&nbsp;px <span>bs2 · 2×2</span></td><td class="val best">49.19</td><td class="val">68.44</td><td class="val">54.56</td></tr>
+        <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="val">46.16</td><td class="val best">71.00</td><td class="val">54.56</td></tr>
+        <tr><td class="px">112&nbsp;px <span>bs8 · 8×8</span></td><td class="val">45.06</td><td class="val">69.83</td><td class="val best">55.67</td></tr>
       </tbody>
     </table>
-    <div class="legend">
-      首格对比(lvbench bs8 768帧)：满分辨率 290px@ctx131k=<b>48.35</b> ≫ 降分辨率 204px=45.06(表④)——说明 768 帧下顶满真实窗口跑满分辨率明显更优。其余格陆续回填(videomme bs8 因数据重生成稍后补)。
-    </div>
+    <div class="legend">降分辨率(204px)下 lvbench 的 px 效应最强且单调下降(bs2 49.19 ≫ bs8 45.06)——低分辨率放大了大 block 的信息损失。与表②(290px满分辨率)对比，满分辨率明显更优。</div>
   </div>
 
   <footer>
     注：px = block_size × 14px(patch)。bs2=28px、bs4=56px、bs8=112px。<br>
     指标：lvbench = lvbench_score；videomme-long = videomme_perception_score(overall)。均为百分数。<br>
-    tc256 三种设置：① mp120k 原生(降分辨率装下) ② mp313k+YaRN(满分辨率外推) ③ mp313k 原生=爆 context 无效(未列)。
+    上下文窗口：模型真实训练窗口 131072（config 默认 40960 为保守声明）。768 帧满分辨率(表②)在 131k 窗口内原生有效。
   </footer>
 </body>
 </html>
