@@ -56,8 +56,8 @@
 
   <!-- ② tc768 full-res @ctx131k (moved to 2nd) -->
   <div class="card">
-    <h2>② tc768（768 帧，满分辨率，原生 131k 窗口）</h2>
-    <div class="meta">lvbench 290px / videomme 310px。模型真实训练窗口 = 131072（config 里 40960 为保守值，rope_theta=8e6 支持长上下文）；改回 131072 后 768 帧满分辨率（72-80k token）<b>原生有效、不降级</b>（实测 exceeded=0）。orig codec 权重 + max_num_frames=768。</div>
+    <h2>② tc768（768 帧，lvbench 290×290px / videomme 310×310px，原生 131k 窗口）</h2>
+    <div class="meta">canvas 分辨率：lvbench max_pixels=84,100(≈290px)、videomme max_pixels=96,100(≈310px)。模型真实训练窗口 = 131072（config 里 40960 为保守值，rope_theta=8e6 支持长上下文）；改回 131072 后 768 帧 @290/310px（72-80k token）<b>原生有效、不降级</b>（实测 exceeded=0）。orig codec 权重 + max_num_frames=768。</div>
     <table>
       <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
@@ -66,7 +66,7 @@
         <tr><td class="px">112&nbsp;px <span>bs8 · 8×8</span></td><td class="val">48.35</td><td class="val best">70.11</td><td class="val best">57.44</td></tr>
       </tbody>
     </table>
-    <div class="legend">满分辨率 768 帧：lvbench bs4(48.81) 最高，整体比降分辨率版（表⑤）高 ~3 分。videomme-long：px 越大越好（bs8 有字幕 70.11、无字幕 57.44）。</div>
+    <div class="legend">290/310px、768 帧：lvbench bs4(48.81) 最高，整体比更低分辨率版（表⑤ 204/200px）高 ~3 分。videomme-long：px 越大越好（bs8 有字幕 70.11、无字幕 57.44）。</div>
   </div>
 
   <!-- ③ tc256 mp120k native -->
@@ -87,14 +87,14 @@
   <!-- ④ tc256 YaRN -->
   <div class="card">
     <h2>④ tc256（256 帧，max_pixels = 313k + YaRN 外推）— 对照</h2>
-    <div class="meta">不降分辨率，用 YaRN(factor 2.5) 外推窗口到 102400 装下 ~99k token。满分辨率 256 帧。慢(~45s/样本)，代表性跑 bs4 一行。</div>
+    <div class="meta">canvas 分辨率 max_pixels=313,600(560×560px，本项目最高档)。用 YaRN(factor 2.5) 外推窗口到 102400 装下 ~99k token。256 帧。慢(~45s/样本)，代表性跑 bs4 一行。</div>
     <table>
       <thead><tr><th style="text-align:left">分辨率 (block_size)</th><th>lvbench</th><th>videomme-long<br>(有字幕)</th><th>videomme-long<br>(无字幕)</th></tr></thead>
       <tbody>
         <tr><td class="px">56&nbsp;px <span>bs4 · 4×4</span></td><td class="val best">50.74</td><td class="val">70.00</td><td class="val">56.44</td></tr>
       </tbody>
     </table>
-    <div class="legend">YaRN 满分辨率 bs4 lvbench=50.74，高于同 block 的降分辨率版与所有 tc128/tc256——满分辨率+更多帧对 lvbench 最有利。</div>
+    <div class="legend">YaRN 560px(mp313k) bs4 lvbench=50.74，高于同 block 的更低分辨率版与所有 tc128/tc256——高分辨率(560px)+更多帧对 lvbench 最有利。</div>
   </div>
 
   <!-- ⑤ tc768 downscaled max-context -->
