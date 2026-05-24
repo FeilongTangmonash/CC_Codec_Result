@@ -37,7 +37,7 @@
 </head>
 <body>
   <h1>Codec px(block_size)消融实验</h1>
-  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 生成于 2026-05-24</div>
+  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24 12:50</div>
 
   <div class="card">
     <h2>① tc128（128 帧，max_pixels = 313k）— 完整</h2>
@@ -95,32 +95,59 @@
       <tbody>
         <tr>
           <td class="px">28&nbsp;px <span>bs2</span></td>
-          <td class="run">running</td>
-          <td class="run">running</td>
-          <td class="run">running</td>
+          <td class="val">47.64</td>
+          <td class="val">69.67</td>
+          <td class="val">56.11</td>
         </tr>
         <tr>
           <td class="px">56&nbsp;px <span>bs4</span></td>
-          <td class="run">gen+eval pending</td>
-          <td class="run">pending</td>
-          <td class="run">pending</td>
+          <td class="run">running</td>
+          <td class="run">running</td>
+          <td class="run">running</td>
         </tr>
         <tr>
           <td class="px">112&nbsp;px <span>bs8</span></td>
-          <td class="val">48.93 <span class="delta up">vs tc128 +1.74</span></td>
+          <td class="val best">48.93 <span class="delta up">vs tc128 +1.74</span></td>
           <td class="run">running</td>
-          <td class="run">running</td>
+          <td class="run">pending</td>
         </tr>
       </tbody>
     </table>
     <div class="legend">
-      初步：bs8 在 lvbench 上 256 帧(48.93) 高于 128 帧(47.19)，更多帧对长视频检索有帮助。其余格跑完后回填。
+      初步：bs8 在 lvbench 256 帧(48.93) &gt; 128 帧(47.19)，更多帧对长视频检索有帮助；bs2 反而 47.64 &lt; 49.06(128帧)。其余跑完回填。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>③ tc256（256 帧，max_pixels = 313k + YaRN 外推）— 对照</h2>
+    <div class="meta">不降分辨率，改用 YaRN(factor 2.5)把上下文窗口外推到 102400 装下 ~99k token。满分辨率 256 帧。慢(~45s/样本)。</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">分辨率 (block_size)</th>
+          <th>lvbench</th>
+          <th>videomme-long<br>(有字幕)</th>
+          <th>videomme-long<br>(无字幕)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px">56&nbsp;px <span>bs4 · YaRN</span></td>
+          <td class="val best">50.74</td>
+          <td class="val">70.00</td>
+          <td class="val">56.44</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      YaRN 满分辨率 bs4 lvbench=50.74，高于同 block 的 mp120k 降分辨率版与所有 tc128——满分辨率+更多帧对 lvbench 最有利。代表性跑 bs4 一行（bs2/bs8 的 YaRN 行因 45s/样本太慢未铺）。
     </div>
   </div>
 
   <footer>
     注：px = block_size × 14px(patch)。bs2=28px、bs4=56px、bs8=112px。<br>
-    指标：lvbench = lvbench_score；videomme-long = videomme_perception_score（overall）。均为百分数。
+    指标：lvbench = lvbench_score；videomme-long = videomme_perception_score(overall)。均为百分数。<br>
+    tc256 三种设置：① mp120k 原生(降分辨率装下) ② mp313k+YaRN(满分辨率外推) ③ mp313k 原生=爆 context 无效(未列)。
   </footer>
 </body>
 </html>
