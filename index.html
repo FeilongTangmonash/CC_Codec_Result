@@ -37,7 +37,7 @@
 </head>
 <body>
   <h1>Codec px(block_size)消融实验</h1>
-  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-24</div>
+  <div class="sub">LLaVA-OneVision-2 8B · 离线 codec canvas · orig codec 权重 · 数据集：lvbench / videomme-long &nbsp;|&nbsp; 更新于 2026-05-25</div>
 
   <!-- ① tc128 -->
   <div class="card">
@@ -142,6 +142,27 @@
     <div class="legend">
       <b>nocodec 均匀满帧 vs codec canvas</b>：lvbench chat 53.71 &gt; codec 48.81(+4.9)，videomme 持平。codec 块打包在长视频检索上有信息损失。<br>
       <b>simple vs chat（重要）</b>：chat 一致更优——lvbench chat 53.71 ≫ simple 43.71(<b>+10 分</b>)、videomme chat 70.89 &gt; simple 67.78(+3.1)。chat 模板对该模型明显更合适；但 simple 更快(lvbench 26s vs chat 65s/样本)。
+    </div>
+  </div>
+
+  <!-- ⑧ codec/nocodec × chat/simple 2×2 -->
+  <div class="card">
+    <h2>⑧ codec vs nocodec × chat vs simple（2×2 完整对照，bs2/28px·768帧）</h2>
+    <div class="meta">同一套权重（codec 与 nocodec 的 safetensors 字节级相同，仅 modeling 的 RoPE/位置处理与推理数据通路不同）。codec=bs2/28px 离线 canvas（≈700 canvas/样本，~64k 视觉 token）；nocodec=均匀采样 768 帧 290/310px。<b>codec+chat 此前因 chat 包装器把 canvas 重新切片（453888≠存储 286832 patch）而崩溃，已修复</b>：chat 的 codec 分支改用恒等切片（min_pixels=0），与 simple 对齐；均匀采样分支不变。</div>
+    <table>
+      <thead><tr><th style="text-align:left">视觉输入 × 模式</th><th>lvbench</th><th>videomme-long(有字幕)</th></tr></thead>
+      <tbody>
+        <tr><td class="px">codec canvas · <b>simple</b> <span>bs2 · 28px</span></td><td class="val">48.42</td><td class="val">64.67</td></tr>
+        <tr><td class="px">codec canvas · <b>chat</b> <span>bs2 · 28px</span></td><td class="val">41.64</td><td class="val">65.00</td></tr>
+        <tr><td class="px">nocodec 均匀 · <b>simple</b> <span>290/310px</span></td><td class="val">43.71</td><td class="val">67.78</td></tr>
+        <tr><td class="px">nocodec 均匀 · <b>chat</b> <span>290/310px</span></td><td class="val best">53.71</td><td class="val best">70.89</td></tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <b>chat 对两种视觉输入的作用相反（核心发现）</b>：<br>
+      • nocodec 均匀帧：chat <span class="up">大幅提升</span>（lvbench 43.71→53.71，<b>+10.0</b>；videomme 67.78→70.89，+3.1）。<br>
+      • codec canvas：chat <span class="down">反而拖累</span>（lvbench 48.42→<b>41.64，−6.8</b>；videomme 64.67→65.00，持平）。<br>
+      <b>机理</b>：chat 的逐帧时间戳/字幕重写（_rewrite_codec_vision_blocks）默认"一帧一时间戳"，与 codec 把多源帧打包进单张 canvas 的结构错位，损害检索；simple 的整体拼接对 codec 更稳。故 <b>codec 应配 simple、nocodec 应配 chat</b>。
     </div>
   </div>
 
