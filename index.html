@@ -135,10 +135,14 @@
       <thead><tr><th style="text-align:left">模式</th><th>lvbench</th><th>videomme-long(有字幕)</th></tr></thead>
       <tbody>
         <tr><td class="px">codec canvas 768帧 <span>表②最佳, 290/310px</span></td><td class="val">48.81</td><td class="val">70.11</td></tr>
-        <tr><td class="px">nocodec 均匀采样 768帧 <span>chat, 290/310px</span></td><td class="val best">53.71</td><td class="val best">70.89</td></tr>
+        <tr><td class="px">nocodec 均匀 768帧 · <b>chat</b> <span>290/310px</span></td><td class="val best">53.71</td><td class="val best">70.89</td></tr>
+        <tr><td class="px">nocodec 均匀 768帧 · <b>simple</b> <span>290/310px</span></td><td class="run">running</td><td class="val">67.78</td></tr>
       </tbody>
     </table>
-    <div class="legend">关键发现：<b>nocodec 均匀采样(满帧)在 lvbench 上明显优于 codec canvas(53.71 vs 48.81，+4.9 分)</b>，videomme-long 基本持平(70.89 vs 70.11)。说明 codec 的块打包布局在长视频检索(lvbench)上有信息损失，朴素均匀满帧更优；但代价是慢(~65s vs codec ~15-45s/样本)。</div>
+    <div class="legend">
+      <b>nocodec 均匀满帧 &gt; codec canvas</b>：lvbench 53.71(chat) vs codec 48.81(+4.9)，videomme 持平。codec 块打包在长视频检索上有信息损失。<br>
+      <b>simple vs chat</b>：videomme chat(70.89) &gt; simple(67.78)，+3.1 分——字幕任务下 chat 模板更优；且 simple 更快(lvbench 26s vs chat 65s/样本)。lvbench simple 跑完回填。
+    </div>
   </div>
 
   <footer>
