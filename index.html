@@ -136,12 +136,12 @@
       <tbody>
         <tr><td class="px">codec canvas 768帧 <span>表②最佳, 290/310px</span></td><td class="val">48.81</td><td class="val">70.11</td></tr>
         <tr><td class="px">nocodec 均匀 768帧 · <b>chat</b> <span>290/310px</span></td><td class="val best">53.71</td><td class="val best">70.89</td></tr>
-        <tr><td class="px">nocodec 均匀 768帧 · <b>simple</b> <span>290/310px</span></td><td class="run">running</td><td class="val">67.78</td></tr>
+        <tr><td class="px">nocodec 均匀 768帧 · <b>simple</b> <span>290/310px</span></td><td class="val">43.71</td><td class="val">67.78</td></tr>
       </tbody>
     </table>
     <div class="legend">
-      <b>nocodec 均匀满帧 &gt; codec canvas</b>：lvbench 53.71(chat) vs codec 48.81(+4.9)，videomme 持平。codec 块打包在长视频检索上有信息损失。<br>
-      <b>simple vs chat</b>：videomme chat(70.89) &gt; simple(67.78)，+3.1 分——字幕任务下 chat 模板更优；且 simple 更快(lvbench 26s vs chat 65s/样本)。lvbench simple 跑完回填。
+      <b>nocodec 均匀满帧 vs codec canvas</b>：lvbench chat 53.71 &gt; codec 48.81(+4.9)，videomme 持平。codec 块打包在长视频检索上有信息损失。<br>
+      <b>simple vs chat（重要）</b>：chat 一致更优——lvbench chat 53.71 ≫ simple 43.71(<b>+10 分</b>)、videomme chat 70.89 &gt; simple 67.78(+3.1)。chat 模板对该模型明显更合适；但 simple 更快(lvbench 26s vs chat 65s/样本)。
     </div>
   </div>
 
